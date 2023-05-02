@@ -1,0 +1,151 @@
+body {
+  background-image: url('backg.jpg');
+  background-size: 100% auto;
+  -webkit-transform: scale(0.87);
+       -moz-transform: scale(0.87);
+            transform: scale(0.87);
+}
+
+
+#canvas {
+	position: absolute;
+	margin-left: 28%;
+	margin-top: 8%;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border: 5px solid black;
+	border-radius: 10px;
+	background: linear-gradient(white, pink, #FF69B4);
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Emilys+Candy&display=swap');
+
+h1 {
+  text-align: center;
+  font-family: 'Emilys Candy', cursive;
+  font-size: 6em;
+  background: repeating-linear-gradient(
+    45deg,
+    red,
+    red 30px,
+    pink 30px,
+    pink 60px,
+    white 90px,
+    white 90px
+  );
+  animation: candy 30s infinite linear;
+  background-clip: text;
+  color: transparent;
+  -webkit-background-clip: text;
+    /* outline */
+  -webkit-text-stroke: 3px #333;
+  -webkit-text-fill-color: transparent;
+  
+  /* fallback */
+  color: #333;
+}
+
+@keyframes candy {
+  from {
+    background-position: 0px;
+  }
+  to {
+    background-position: 1000px;
+  }
+}
+
+
+.tocke {
+	padding-left: 20%;
+	float: left;
+	font-family: 'Arial black', cursive;
+	font-size: 1.5em;
+	-webkit-text-stroke: 0.5px white;
+}
+
+.cas {
+	padding-right: 20%;
+	float: right;
+	font-family: 'Arial black', cursive;
+	font-size: 1.5em;
+	-webkit-text-stroke: 0.5px white;
+}
+
+mark {
+  background-color: transparent;
+  color: red;
+}
+
+#a {
+	margin-top: 14;
+	text-align: center;
+	font-family: 'Arial black', cursive;
+	font-size: 1.5em;
+}
+
+.centriraj {
+	width: 825;
+	height: 80;
+	margin-top: 45%;
+	border: 5px solid black;
+	border-radius: 15px;
+	margin-left: 27.9%;
+	background-color: rgba(0, 0, 0, 0.2);
+}
+
+
+.custom-btn {
+  width: 150px;
+  height: 50px;
+  color: black;
+  border-radius: 5px;
+  padding: 10px 25px;
+  font-family: 'Arial black', cursive;
+  font-weight: 500;
+  font-size: 15px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+   box-shadow:inset 2px 2px 2px 0px rgba(255,255,255,.5),
+   7px 7px 20px 0px rgba(0,0,0,.1),
+   4px 4px 5px 0px rgba(0,0,0,.1);
+  outline: none;
+}
+
+.btn-9 {
+  border: none;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+.btn-9:after {
+  position: absolute;
+  content: " ";
+  z-index: -1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+   background-color: #1fd1f9;
+background-image: linear-gradient(315deg, white, pink, #FF69B4);
+  transition: all 0.3s ease;
+}
+.btn-9:hover {
+  background: transparent;
+  box-shadow:  4px 4px 6px 0 rgba(255,255,255,.5),
+              -4px -4px 6px 0 rgba(116, 125, 136, .2), 
+    inset -4px -4px 6px 0 rgba(255,255,255,.5),
+    inset 4px 4px 6px 0 rgba(116, 125, 136, .3);
+  color: black;
+}
+.btn-9:hover:after {
+  -webkit-transform: scale(2) rotate(180deg);
+  transform: scale(2) rotate(180deg);
+  box-shadow:  4px 4px 6px 0 rgba(255,255,255,.5),
+              -4px -4px 6px 0 rgba(116, 125, 136, .2), 
+    inset -4px -4px 6px 0 rgba(255,255,255,.5),
+    inset 4px 4px 6px 0 rgba(116, 125, 136, .3);
+}
