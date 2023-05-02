@@ -1,29 +1,66 @@
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Candy Bricks</title>
+<link rel="icon" type="image/x-icon" href="ikona.png">
+<link rel="stylesheet" href="style.css">
 <script
   src="https://code.jquery.com/jquery-3.6.4.js"
   integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
   crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="application/javascript">
+
+var ustavizogico = false;
+function lvl2(){
+	ustavizogico = true;
+	//sharnjevanje v localStorage
+	var playerName = localStorage.getItem('playerName');
+    if (playerName) {
+		var highScores = JSON.parse(localStorage.getItem('highScores')) || [];
+		highScores.push({ name: playerName, score: 30, time: "1:45", status: "Zmaga" });
+		localStorage.setItem('highScores', JSON.stringify(highScores));
+    }
+	Swal.fire({
+	title: 'Čestitke!',
+	text: 'Uspelo vam je podreti vse opeke.',
+	icon: 'success',
+	color:'black',
+	confirmButtonColor: 'pink',
+	confirmButtonText: 'Igraj ponovno',
+	backdrop: `
+			rgba(137, 196, 244, 0.4)
+			  `
+	}).then((result) => {
+		if (result.isConfirmed) {
+			location.reload(); 
+		}
+	});
+}
+
 
 function draw() {
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
-
-
 }
 
 function drawIt() {
-var x = 150;
-var y = 150;
-var dx = 2;
-var dy = 4;
+//localStorage.clear();
+var x = 395;
+var y = 750;
+var dx;
+var dy;
 var WIDTH;
 var HEIGHT;
-var r=10;
+var r=13;
 var ctx;
-
+var spacePressed = false;
 var tocke; //deklaracija spremenljivke
+var paddleEnabled = true;
+let fraj = true;
+var cajt = false;
+var cajt2 = false;
+var difficulty = 1;
 
 function init() {
 sekunde = 0;
@@ -34,21 +71,155 @@ $("#tocke").html(tocke);
 ctx = $('#canvas')[0].getContext("2d");
   WIDTH = $("#canvas").width();
   HEIGHT = $("#canvas").height();
-  return setInterval(draw, 10);
+  
+  Swal.fire({
+    title: 'The candy bricks igra',
+     html: 'Najprej izberite težavnost ter vpišite svoje ime. <br><br> Ko kliknete na igraj, se bo igra pojavila, plošček premikate s pomočjo leve ter desne puščice na tipkovnici, ali pa z miško.' + 
+	      '<select id="difficulty" class="swal2-input">' +
+          '<option value="1">Lahka</option>' +
+          '<option value="2">Srednja</option>' +
+          '<option value="3">Težka</option>' +
+        '</select>' ,
+	input: 'text',
+    iconHtml: '<img src="ikona.png">',
+    confirmButtonText: 'Igraj',
+	confirmButtonColor: 'pink',
+	inputValidator: (value) => {
+    if (!value) {
+      return 'Vpišite svoje ime!'
+    }
+    }
+  }).then((result) => {
+	//shranjevanje imena v localStorage
+    if (result.isConfirmed) {
+	localStorage.setItem('playerName', result.value);
+	difficulty = Number($('#difficulty').val());
+	//hitrost zogice glede na tezavnost
+	if (difficulty === 1) {
+    dx = 4;
+    dy = 8;
+    
+  } else if (difficulty === 2) {
+    dx = 6;
+	dy = 12;
+    
+  } else if (difficulty === 3) {
+	dx = 10;
+	dy = 18;
+	
+  }
+      spacePressed = true;
+		cajt = true;
+      // zacetek odstevanja
+      var countdown = 3;
+      var countdownInterval = setInterval(function() {
+        if (countdown === -1) {
+          clearInterval(countdownInterval);
+          // pozeni interval za risanje igre
+          let gameInterval = setInterval(draw, 10);
+			cajt2 = true;
+        } else {
+          // tretina kroga za vsako stevilko
+        var fraction = countdown / 3;
+        // narisi krog
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        ctx.beginPath();
+        ctx.arc(WIDTH/2, HEIGHT/2, 60, 0, 2 * Math.PI);
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 10;
+        ctx.stroke();
+        // narisi stevilko
+        ctx.font = "72px Arial Black";
+        ctx.fillStyle = "red";
+        ctx.textAlign = "center";
+        ctx.fillText(countdown, WIDTH/2, HEIGHT/2 + 24);
+        // pobarvaj tretino kroga
+        ctx.beginPath();
+        ctx.arc(WIDTH/2, HEIGHT/2, 60, -0.5 * Math.PI, (2 * fraction - 0.5) * Math.PI);
+        ctx.strokeStyle = 'white';
+        ctx.stroke();
+        // odstevaj
+        countdown--;
+        }
+      }, 1000);
+
+      // ko konca, pocisti canvas
+      ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    }
+  });
+  
+  $("#highScoresButton").click(() => {
+  var highScores = JSON.parse(localStorage.getItem('highScores')) || [];
+  var content = '';
+  if (highScores.length > 0) {
+    content += '<table>';
+    content += '<thead><tr><th>Ime</th><th>Točke</th><th>Čas</th><th>Status</th></tr></thead>';
+    content += '<tbody>';
+    for (var i = 0; i < highScores.length; i++) {
+      content += '<tr><td>' + highScores[i].name + '</td><td>' + highScores[i].score + '</td><td>' + highScores[i].time + '</td><td>' + highScores[i].status + '</td></tr>';
+    }
+    content += '</tbody>';
+    content += '</table>';
+  } else {
+    content = '<p>Ni še rezlutatov!</p>';
+  }
+  Swal.fire({
+    title: 'Rezultati:',
+    html: content,
+    confirmButtonColor: 'pink',
+    confirmButtonText: 'OK'
+  });
+});
+   
+  
+	
 }
 
 function circle(x,y,r) {
   ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI*2, true);
+  ctx.arc(x, y, 15, 0, Math.PI*2, true);
   ctx.closePath();
+  ctx.fillStyle = "black";
   ctx.fill();
 }
 
-function rect(x,y,w,h) {
+//zaokrozevanje opek
+function roundRect(x, y, width, height, radius) {
   ctx.beginPath();
-  ctx.rect(x,y,w,h);
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.arcTo(x + width, y, x + width, y + radius, radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+  ctx.lineTo(x + radius, y + height);
+  ctx.arcTo(x, y + height, x, y + height - radius, radius);
+  ctx.lineTo(x, y + radius);
+  ctx.arcTo(x, y, x + radius, y, radius);
   ctx.closePath();
   ctx.fill();
+  ctx.lineWidth = 2;
+ctx.strokeStyle = 'black';
+ctx.stroke();
+}
+
+//barvanje SAMO OPEK
+function rect(x, y, w, h) {
+  ctx.beginPath();
+  if (typeof isBrick !== 'undefined' && isBrick) {
+    var gradient = ctx.createLinearGradient(x, y, x + w, y + h);
+    gradient.addColorStop(0, "#EE4B2B");
+    gradient.addColorStop(0.25, "#EE4B2B");
+    gradient.addColorStop(0.25, "#FFFFFF");
+    gradient.addColorStop(0.5, "#FFFFFF");
+    gradient.addColorStop(0.5, "#EE4B2B");
+    gradient.addColorStop(0.75, "#EE4B2B");
+    gradient.addColorStop(0.75, "#FFFFFF");
+    gradient.addColorStop(1, "#FFFFFF");
+    ctx.fillStyle = gradient;
+  } else {
+    ctx.fillStyle = "black";
+  }
+  roundRect(x, y, w, h, 10);
 }
 
 function clear() {
@@ -61,9 +232,9 @@ var paddlew;
 
 
 function init_paddle() {
-  paddlex = 2;
-  paddleh = 10;
-  paddlew = 75;
+  paddlex = 330;
+  paddleh = 12;
+  //paddlew = 165;
   
 }
 
@@ -95,9 +266,11 @@ canvasMinX = $("canvas").offset().left;
 }
 
 function onMouseMove(evt) {
+if (paddleEnabled) {
   if (evt.pageX > canvasMinX && evt.pageX < canvasMaxX) {
     paddlex = evt.pageX - canvasMinX - (WIDTH / 8); //kurzor na sredino
   }
+}
 }
 $(document).mousemove(onMouseMove);
 
@@ -109,11 +282,11 @@ var BRICKHEIGHT;
 var PADDING;
 
 function initbricks() { //inicializacija opek - polnjenje v tabelo
-  NROWS = 5;
+  NROWS = 6;
   NCOLS = 5;
-  BRICKWIDTH = (WIDTH/NCOLS) - 1;
-  BRICKHEIGHT = 15;
-  PADDING = 1;
+  BRICKWIDTH = 158.75;
+  BRICKHEIGHT = 35;
+  PADDING = 5;
   bricks = new Array(NROWS);
   for (i=0; i < NROWS; i++) {
     bricks[i] = new Array(NCOLS);
@@ -132,7 +305,7 @@ var izpisTimer;
 var start=true;
 //timer
 function timer(){
-if(start==true){
+if(start==true && cajt == true && cajt2 == true){
 sekunde++;
 
 sekundeI = ((sekundeI = (sekunde % 60)) > 9) ? sekundeI : "0"+sekundeI;
@@ -148,18 +321,37 @@ $("#cas").html(izpisTimer);
 }
 }
 
+var ena = false;
+var dva = false;
+var tri = false;
+
 function draw() {	
+if (ustavizogico){
+	dx = 0;
+	dy = 0;
+	start=false;
+    paddleEnabled = false;
+}
+
+//nastavljanje ploscka glede na tezavnost
+if (difficulty === 1) {
+    paddlew = 200;
+  } else if (difficulty === 2) {
+    paddlew = 170;
+  } else if (difficulty === 3) {
+	paddlew = 140;
+  }
 clear();
 circle(x, y, 10);
   //premik ploščice levo in desno
-  if(rightDown){
+  if(rightDown && paddleEnabled){
 if((paddlex+paddlew) < WIDTH){
 paddlex += 5;
 }else{
 paddlex = WIDTH-paddlew;
 }
 }
-else if(leftDown){
+else if(leftDown && paddleEnabled){
 if(paddlex>0){
 paddlex -=5;
 }else{
@@ -172,9 +364,11 @@ rect(paddlex, HEIGHT-paddleh, paddlew, paddleh);
 for (i=0; i < NROWS; i++) {
     for (j=0; j < NCOLS; j++) {
       if (bricks[i][j] == 1) {
+		isBrick = true; // nastavi da je opeka za barvanje
         rect((j * (BRICKWIDTH + PADDING)) + PADDING,
             (i * (BRICKHEIGHT + PADDING)) + PADDING,
             BRICKWIDTH, BRICKHEIGHT);
+		isBrick = false; // ostalo niso opeke
       }
     }
   }
@@ -187,8 +381,28 @@ rowheight = BRICKHEIGHT + PADDING + 2; //Smo zadeli opeko?
 if (y < NROWS * rowheight && row >= 0 && col >= 0 && bricks[row][col] == 1) {
 dy = -dy; bricks[row][col] = 0;
 
-tocke += 1; 
+//stetje tock glede na tezavnost
+if (difficulty === 1) {
+	ena = true;
+    tocke +=1;
+  } else if (difficulty === 2) {
+    dva = true; 
+    tocke +=5;
+  } else if (difficulty === 3) {
+    tri = true;
+	tocke +=10;
+  }
+ 
 $("#tocke").html(tocke);
+
+//zmaga glede na tezavnost
+if (tocke === 30 &&  ena === true) {	
+	lvl2();   
+} else if (tocke === 150 && dva === true) {
+	lvl2();
+} else if (tocke === 300 && tri === true) {
+	lvl2();
+}
 }
 
 if (x + dx > WIDTH -r|| x + dx < 0 +r)
@@ -196,14 +410,45 @@ dx = -dx;
 
 if (y + dy < 0+r)
     dy = -dy;
+	
   else if (y + dy > HEIGHT -r) {
-	start=false;
-    if (x > paddlex && x < paddlex + paddlew){
-	  dx = 8 * ((x-(paddlex+paddlew/2))/paddlew);
-      dy = -dy;
-	  start=true;
-    }else if (y + dy > HEIGHT -r)
-      clearInterval(intervalId);
+	if (x > paddlex && x < paddlex + paddlew){
+    dx = 8 * ((x-(paddlex+paddlew/2))/paddlew);
+    dy = -dy;
+    start=true;
+    paddleEnabled = true;
+  } else {
+    start=false;
+    paddleEnabled = false;
+	//shranjevanje v localStorage
+	var playerName = localStorage.getItem('playerName');
+	if (playerName) {
+		var highScores = JSON.parse(localStorage.getItem('highScores')) || [];
+		highScores.push({ name: playerName, score: tocke, time: izpisTimer, status: "Poraz" });
+		localStorage.setItem('highScores', JSON.stringify(highScores));
+	}
+    Swal.fire({
+		title: 'Konec igre!',
+		text: 'Zgrešili ste žogico :(',
+		icon: 'error',
+		color:'black',
+		background:'#pink',
+		confirmButtonColor: 'pink',
+		confirmButtonText: 'Igraj ponovno?',
+		backdrop: `
+			rgba(133, 1, 1,0.4)
+			  `
+		}).then((result) => {
+			if (result.isConfirmed) {
+				location.reload(); 
+			}
+	    });
+    dx = 0;
+    dy = 0; //mogu sem dat to pred clearInterval ker drugace se sweetalert ne pojavi!
+	clearInterval(intervalId);
+  }
+	
+		
   }
 
 x += dx;
@@ -216,11 +461,19 @@ init_mouse();
 initbricks();
 }
 
+
+var bricks = document.getElementsByClassName("brick");
+
+
 </script>
 </head>
+<h1>Candy Bricks</h1>
 <body onload="drawIt()">
-<canvas id="canvas" width="300" height="300"></canvas>
-<p>Točke: <mark id="tocke">0</mark></p>
-<p>Čas: <mark id="cas">00:00</mark></p>
+<canvas id="canvas" width="825" height="800"></canvas>
+<div class="centriraj">
+<p class="tocke">TOČKE: <mark id="tocke">0</mark></p>
+<p class="cas">ČAS: <mark id="cas">00:00</mark></p>
+<div id="a"><button id="highScoresButton" class="custom-btn btn-9" type="button" >Rezultati</button></div>
+</div>
 </body>
 </html>
